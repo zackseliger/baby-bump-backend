@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 db = mysql.connector.connect(
     host = "localhost",
     user = "root",
-    passwd = "babybump",
+    passwd = ,
     database = "babybump"
 )
 
