@@ -1,36 +1,46 @@
 from flask import Flask, request
-from forms import RegistrationForm, LoginForm
 import mysql.connector
+import os
+from os import getenv
+from dotenv import load_dotenv, find_dotenv
+#print(getenv("DB_PASSWORD"))
 
 app = Flask(__name__)
-app.config['SECRET KEY'] = '009d6ca23ae690fec6bada88ac46f0b4'
 
 @app.route('/')
 def root():
-	return "<h1>Hello World!</h1>"
+    return "Hello World"
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    form = RegistrationForm()
-    return render_template('register.html', title='Register', form=form)
-
-@app.route('/login')
-def login():
-    form = LoginForm()
-    return render_template('login.html', title='Login', form=form)
-#@app.route('/register', method = ['POST'])
-#def register():
-#    Username = request.args.get('username');
-#    Password = request.args.get('password');
-#    Email = request.args.get('email');
-#    Role = request.args.get('role');
-#    insert_query = "INSERT INTO User (username, password, email, role) VALUES (%s, %s, %s, %s)"
-#    insert_values = (Username, Password, Email, Role);
-
-    mycursor.execute(insert_query, insert_values);
-    db.commit()
-
-
-# start the flask app
 if __name__ == '__main__':
-	app.run()
+    app.run()
+
+#calling the load_dotenv file
+load_dotenv(find_dotenv())
+password = os.getenv("password_db")
+
+#connect to server
+db = mysql.connector.connect(
+    host = "localhost",
+    user = "root",
+    passwd = "babybump",
+    database = "babybump"
+)
+
+mycursor = db.cursor()
+
+# create database and tables if they don't already exist
+mycursor.execute("CREATE DATABASE IF NOT EXISTS babybump DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;".format("babybump"));
+mycursor.execute("CREATE TABLE IF NOT EXISTS User (username VARCHAR(25), password VARCHAR(25), email VARCHAR(25), role VARCHAR(25), id int PRIMARY KEY AUTO_INCREMENT)")
+
+#add user info to the table User
+Username = request.args.get("username")
+Password = request.args.get("password")
+Email = request.args.get("email")
+Role = request.args.get("role")
+
+add_user = "INSERT INTO User (username, password, email, role) VALUES (%s, %s, %s, %s)"
+user_info = (Username, Password, Email, Role)
+mycursor.execute(add_user, user_info)
+db.commit()
+
+db.close()
